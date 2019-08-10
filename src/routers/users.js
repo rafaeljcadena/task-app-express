@@ -5,12 +5,14 @@ const bcrypt = require('bcryptjs');
 
 router.post('/users', async (req, res) => {
   const { name, email, age, password } = req.body
-  
+
   try {
     const user = new User({ name, email, age, password });
-    const savedUser = await user.save();
+    const token = await user.generateAuthToken()
+    const savedUser = await user.save()
+    
     res.status(201);
-    res.send(user);
+    res.send({ savedUser, token })
   } catch (e) {
     res.status(422);
     res.send(e);
@@ -20,7 +22,8 @@ router.post('/users', async (req, res) => {
 router.post('/users/login', async (req, res) => {
   try {
     const user = await User.findByCredentials(req.body.email, req.body.password)
-    res.send(user)
+    const token = await user.generateAuthToken()
+    res.send({ user, token })
   } catch (e) {
     res.send(e)
   }
