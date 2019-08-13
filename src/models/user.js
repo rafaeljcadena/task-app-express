@@ -78,6 +78,38 @@ userSchema.methods.generateAuthToken = async function() {
   }
 }
 
+// Sobrescreve o método toJSON do objeto. Assim pode ser chamado normalmente nas rotas
+// Dessa forma esse método será executado toda vez que um user for ser renderizado para json no servidor
+userSchema.methods.toJSON = function(){
+  const user = this
+  // user.password = undefined
+  // user.tokens = undefined
+
+  // Retorna o objeto user do mongoose
+  // Com isso podemos manipular o object de forma mais legível
+  const userObject = user.toObject()
+
+  delete userObject.password
+  delete userObject.tokens
+
+  return userObject;
+}
+
+userSchema.methods.getPublicProfile = function(){
+  const user = this
+  // user.password = undefined
+  // user.tokens = undefined
+
+  // Retorna o objeto user do mongoose
+  // Com isso podemos manipular o object de forma mais legível
+  const userObject = user.toObject()
+
+  delete userObject.password
+  delete userObject.tokens
+
+  return userObject;
+}
+
 // Callback que encripta o password passado pelo usuário
 // Todos os callbacks recebem funções no formato antigo "function(){}" para terem acesso ao 'this'. Arrow functions não tem o 'this' apontando para a classe
 userSchema.pre('save', async function(next){
