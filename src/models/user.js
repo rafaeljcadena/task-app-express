@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
       required: true
     }
   }]
-})
+}, { timestamps: true })
 
 // Equivalente ao has_many do rails
 // É preciso criar um atributo virtual para acessar os relations
