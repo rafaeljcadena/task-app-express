@@ -6,7 +6,7 @@ const User = require('../models/user')
 const auth = async (req, res, next) => {
   try {
     // O token é passado num header chamado 'Authorization', o valor contem o prefixo 'Bearer '. É apenas uma convenção
-    const token = req.header('Authorization').replace('Bearer ', '' )
+    const token = req.header('Authorization').replace('Bearer ', '')
 
     // Decodificamos o token através da lib jsonwebtoken passando também a chave que foi usada para encriptar os tokens que geramos
     // Essa chave posteriormente deve ir para as variáveis de ambiente do servidor

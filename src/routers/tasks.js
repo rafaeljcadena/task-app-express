@@ -1,10 +1,12 @@
 const express = require('express')
 const Task = require('../models/task')
+const auth = require('../middleware/auth')
 const router = new express.Router()
 
-router.post('/tasks', async (req, res) => {
+router.post('/tasks', auth, async (req, res) => {
   const { description } = req.body;
-  const task = new Task({ description })
+  // const task = new Task({ description })
+  const task = new Task({...req.body, user: req.user._id})
 
   try {
     const savedTask = await task.save();
@@ -25,7 +27,7 @@ router.post('/tasks', async (req, res) => {
   // })
 })
 
-router.patch('/tasks/:id', async (req, res) => {
+router.patch('/tasks/:id', auth, async (req, res) => {
   const params = Object.keys(req.body)
   const allowedUpdated = ['description']
 
@@ -34,11 +36,13 @@ router.patch('/tasks/:id', async (req, res) => {
   }
 
   try {
-    const task = await Task.findById(req.params.id)
+    const task = await Task.findOne({ _id: req.params.id, user: req.user._id })
+    if (!task) res.status(404).send() 
+
     params.forEach(update => task[update] = req.body[update])
     await task.save()
     
-    task ? res.send(task) : res.status(404).send()
+    res.send(task)
   } catch (error) {
     res.status(500)
     res.send(error)
@@ -46,9 +50,10 @@ router.patch('/tasks/:id', async (req, res) => {
 
 })
 
-router.delete('/tasks/:id', async (req, res) => {
+router.delete('/tasks/:id', auth, async (req, res) => {
   try {
-    const task = await Task.findByIdAndDelete(req.params.id)
+    // const task = await Task.findByIdAndDelete(req.params.id)
+    const task = await Task.findOneAndDelete({ _id: req.params.id, user: req.user._id})
     task ? res.send(task) : res.status(404).send({ message: 'Not Found' })
   } catch (error) {
     res.status(500)
@@ -56,11 +61,14 @@ router.delete('/tasks/:id', async (req, res) => {
   }
 })
 
-router.get('/tasks', async (req, res) => {
+router.get('/tasks', auth, async (req, res) => {
   try {
-    const tasks = await Task.find({})
-    res.status(200)
+    const tasks = await Task.find({ user: req.user._id })
     res.send(tasks)
+    
+    // Populando o usuário que veio com o middleware auth com suas tasks
+    // await req.user.populate('tasks').execPopulate()
+    // res.send(req.user.tasks)
   } catch (e) {
     res.status(500)
     res.send()
@@ -71,10 +79,10 @@ router.get('/tasks', async (req, res) => {
   // })
 })
 
-router.get('/tasks/:id', async (req, res) => {
+router.get('/tasks/:id', auth, async (req, res) => {
   try {
     const _id = req.params.id
-    const task = await Task.findById(_id)
+    const task = await Task.findOne({ _id, user: req.user._id })
     task ? res.send(task) : res.status(404).send();
   } catch (error) {
     res.status(500)

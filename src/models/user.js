@@ -3,6 +3,8 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
+const Task = require('./task')
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -45,6 +47,14 @@ const userSchema = new mongoose.Schema({
       required: true
     }
   }]
+})
+
+// Equivalente ao has_many do rails
+// É preciso criar um atributo virtual para acessar os relations
+userSchema.virtual('tasks', {
+  ref: 'Task',
+  localField: '_id',
+  foreignField: 'user'
 })
 
 // Crio um método estático para buscar os usuários pelo email e senha
@@ -125,6 +135,14 @@ userSchema.pre('save', async function(next){
   next();
 })
 
-const User = mongoose.model('User', userSchema);
+// Callback que remove as tasks quando um usuário for removido
+userSchema.pre('remove', async function(next){
+  const user = this;
+  await Task.deleteMany({ user: user._id })
 
+  next();
+})
+
+
+const User = mongoose.model('User', userSchema);
 module.exports = User;
