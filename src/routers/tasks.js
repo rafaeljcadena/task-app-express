@@ -62,13 +62,25 @@ router.delete('/tasks/:id', auth, async (req, res) => {
 })
 
 router.get('/tasks', auth, async (req, res) => {
+  // Crio um objeto match para, a partir de algumas verificações,
+  // ir colocando algumas propriedades nesse objeto e passo dentro do método populate
+  // para filtrar as tasks que vão ser associadas a seu usuário
+  const match = {}
+
+  if (req.query.completed) match.completed = req.query.completed === 'true'
+  
   try {
-    const tasks = await Task.find({ user: req.user._id })
-    res.send(tasks)
+    // const tasks = await Task.find({ user: req.user._id })
+    // res.send(tasks)
     
     // Populando o usuário que veio com o middleware auth com suas tasks
     // await req.user.populate('tasks').execPopulate()
-    // res.send(req.user.tasks)
+    
+    await req.user.populate({
+      path: 'tasks',
+      match
+    }).execPopulate()
+    res.send(req.user.tasks)
   } catch (e) {
     res.status(500)
     res.send()
