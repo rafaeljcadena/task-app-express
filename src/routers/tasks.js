@@ -61,12 +61,19 @@ router.delete('/tasks/:id', auth, async (req, res) => {
   }
 })
 
+// GET /tasks?completed=true
+// GET /tasks?limit=10&skip=20
+// GET /tasks?sortBy=createdAt_asc
 router.get('/tasks', auth, async (req, res) => {
   // Crio um objeto match para, a partir de algumas verificações,
   // ir colocando algumas propriedades nesse objeto e passo dentro do método populate
   // para filtrar as tasks que vão ser associadas a seu usuário
   const match = {}
-
+  const sort = {}
+  if (req.query.sortBy) {
+    const part = req.query.sortBy
+    sort[part.split("_")[0]] = part.split("_")[1] === 'asc' ? 1 : -1
+  }
   if (req.query.completed) match.completed = req.query.completed === 'true'
   
   try {
@@ -78,7 +85,12 @@ router.get('/tasks', auth, async (req, res) => {
     
     await req.user.populate({
       path: 'tasks',
-      match
+      match,
+      options: {
+        limit: parseInt(req.query.limit), // limit de items na lista
+        skip: parseInt(req.query.page),
+        sort
+      }
     }).execPopulate()
     res.send(req.user.tasks)
   } catch (e) {

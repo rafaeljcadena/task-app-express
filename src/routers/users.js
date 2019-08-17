@@ -2,7 +2,7 @@ const express = require('express')
 const User = require('../models/user')
 const router = new express.Router()
 const bcrypt = require('bcryptjs')
-
+const avatarUpload = require('../middleware/multer')
 const auth = require('../middleware/auth')
 
 
@@ -20,6 +20,17 @@ router.post('/users', async (req, res) => {
     res.status(422);
     res.send(e);
   }
+})
+
+// ao chamar o métdo single devemos passar uma string com o nome do campo que vem na requisição com o arquivo
+router.post('/users/me/avatar', avatarUpload.single('avatar'), (req, res) => {
+  res.send()
+}, (error, req, res, next) => {
+  
+  // Essa função é utilizada para tratar os erros
+  // Recebemos o erro e geramos o json com a mensagem
+  // a função next é utilizada caso haja alguma operação assíncrona. Deve ser usada no final do bloco
+  res.status(400).send({ error: error.message });
 })
 
 router.post('/users/login', async (req, res) => {

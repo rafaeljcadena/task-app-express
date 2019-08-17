@@ -31,6 +31,15 @@ app.use((req, res, next) => {
 //   next()
 // })
 
+// const multer = require('multer')
+// const upload = multer({
+//   dest: 'images'
+// })
+
+// app.post('/upload', upload.single('upload'), (req, res) => {
+//   res.send()
+// })
+
 // Faz com que o express converta os parametros para JSON
 app.use(express.json())
 
@@ -45,14 +54,3 @@ app.listen(port, () => {
 const Task = require('./models/task')
 const User = require('./models/user')
 
-// const main = async () => {
-//   // const task = await Task.findById('5d54a20a25ddc907ce17cd55')
-//   // await task.populate('user').execPopulate()
-//   // console.log(task.user)
-
-//   const user = await User.findById('5d54a1e025ddc907ce17cd52')
-//   await user.populate('tasks').execPopulate()
-//   console.log(user.tasks)
-// }
-
-// main();
