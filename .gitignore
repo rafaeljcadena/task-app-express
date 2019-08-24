@@ -63,4 +63,5 @@ typings/
 .next
 
 playground/
+config/
 mongodb.js
