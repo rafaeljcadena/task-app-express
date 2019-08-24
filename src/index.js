@@ -7,8 +7,8 @@ const usersRouter = require('./routers/users')
 const tasksRouter = require('./routers/tasks')
 
 const app = express()
-const port = process.env.PORT
-console.log(process.env.PORT)
+// const port = process.env.PORT
+// console.log(process.env.PORT)
 
 // o método 'use' pode ser usado para definir middlewares
 // são funções que serão executadas antes das requisições chegarem até as rotas
@@ -48,7 +48,7 @@ app.use(express.json())
 app.use(usersRouter)
 app.use(tasksRouter)
 
-app.listen(port, () => {
+app.listen(process.env.PORT, () => {
   console.log('Server is up on port ' + port)
 })
 
