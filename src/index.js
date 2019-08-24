@@ -49,7 +49,7 @@ app.use(usersRouter)
 app.use(tasksRouter)
 
 app.listen(process.env.PORT, () => {
-  console.log('Server is up on port ' + port)
+  console.log('Server is up on port ' + process.env.PORT)
 })
 
 const Task = require('./models/task')
