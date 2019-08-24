@@ -9,8 +9,7 @@ const auth = async (req, res, next) => {
     const token = req.header('Authorization').replace('Bearer ', '')
 
     // Decodificamos o token através da lib jsonwebtoken passando também a chave que foi usada para encriptar os tokens que geramos
-    // Essa chave posteriormente deve ir para as variáveis de ambiente do servidor
-    const decoded = jwt.verify(token, 'thisismynewcourse')
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
     // Utilizamos o findONe dessa vez pq precisamos assegurar que estamos trazendo o usuário correto
     // Por isso passamos o _id e o token

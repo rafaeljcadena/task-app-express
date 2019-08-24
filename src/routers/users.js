@@ -4,18 +4,19 @@ const router = new express.Router()
 const bcrypt = require('bcryptjs')
 const avatarUpload = require('../middleware/multer')
 const auth = require('../middleware/auth')
+const sharp = require('sharp')
+const { sendWelcomeEmail, sendCancelEmail } = require('../emails/account')
 
 
 router.post('/users', async (req, res) => {
   const { name, email, age, password } = req.body
-
+  
   try {
     const user = new User({ name, email, age, password });
     const token = await user.generateAuthToken()
     const savedUser = await user.save()
-    
-    res.status(201);
-    res.send({ savedUser, token })
+    sendWelcomeEmail(user.email, user.name);
+    res.status(201).send({ savedUser, token })
   } catch (e) {
     res.status(422);
     res.send(e);
@@ -23,14 +24,42 @@ router.post('/users', async (req, res) => {
 })
 
 // ao chamar o métdo single devemos passar uma string com o nome do campo que vem na requisição com o arquivo
-router.post('/users/me/avatar', avatarUpload.single('avatar'), (req, res) => {
+router.post('/users/me/avatar', auth, avatarUpload.single('avatar'), async (req, res) => {
+  // Utilizando a lib Sharp para redimencionar e converter as imagens
+  const buffer = await sharp(req.file.buffer).resize({ width: 250 }).png().toBuffer()
+  req.user.avatar = buffer;
+  
+  // req.user.avatar = req.file.buffer
+  await req.user.save()
   res.send()
 }, (error, req, res, next) => {
-  
+
   // Essa função é utilizada para tratar os erros
   // Recebemos o erro e geramos o json com a mensagem
   // a função next é utilizada caso haja alguma operação assíncrona. Deve ser usada no final do bloco
   res.status(400).send({ error: error.message });
+})
+
+router.delete('/users/me/avatar', auth, async (req, res) => {
+  req.user.avatar = undefined;
+  await req.user.save()
+  res.send()
+})
+
+router.get('/users/:id/avatar', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+
+    if(user && user.avatar){
+      // Definindo headers nos responses
+      res.set('Content-Type', 'image/png')
+      res.send(user.avatar)
+    } else {
+      throw new Error()
+    }
+  } catch (e) {
+    res.status(404).send()
+  }
 })
 
 router.post('/users/login', async (req, res) => {
@@ -139,6 +168,7 @@ router.delete('/users/me', auth, async (req, res) => {
     // user ? res.send(user) : res.status(404).send({ message: 'Not found' })
     const user = req.user
     await user.remove()
+    sendCancelEmail(user.email, user.name)
     res.send(user)
   } catch (error) {
     res.status(500)

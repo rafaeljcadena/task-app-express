@@ -46,7 +46,10 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: true
     }
-  }]
+  }],
+  avatar: {
+    type: Buffer // Tipo de dado para arquivos binários
+  }
 }, { timestamps: true })
 
 // Equivalente ao has_many do rails
@@ -77,7 +80,7 @@ userSchema.methods.generateAuthToken = async function() {
     const user = this;
 
     // A propriedade _id retorna um ObjectID, então precisamos fazer um cast para String para receber o valor do ID em String
-    const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse')
+    const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
 
     user.tokens = user.tokens.concat({ token })
     await user.save()
@@ -101,6 +104,7 @@ userSchema.methods.toJSON = function(){
 
   delete userObject.password
   delete userObject.tokens
+  delete userObject.avatar
 
   return userObject;
 }

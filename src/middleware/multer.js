@@ -3,9 +3,9 @@ const multer = require('multer')
 
 // executando o método multer nós definimos um conjunto de opções (local de destino do arquivo, validações)
 const upload = multer({
-  dest: 'avatars',
+  // dest: 'avatars', // Ao comentar essa linha o arquivo é passado para a rota ao invés de ir para a pasta selecionada
   limits: {
-    fileSize: 1024
+    fileSize: 100000000
   },
   fileFilter(req, file, cb) {
     if (file.originalname.match(/\.(jpg|jpeg|png)$/)) {

@@ -7,7 +7,8 @@ const usersRouter = require('./routers/users')
 const tasksRouter = require('./routers/tasks')
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT
+console.log(process.env.PORT)
 
 // o método 'use' pode ser usado para definir middlewares
 // são funções que serão executadas antes das requisições chegarem até as rotas
