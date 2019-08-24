@@ -52,6 +52,6 @@ app.listen(process.env.PORT, () => {
   console.log('Server is up on port ' + process.env.PORT)
 })
 
-const Task = require('./models/task')
-const User = require('./models/user')
+// const Task = require('./models/task')
+// const User = require('./models/user')
 
